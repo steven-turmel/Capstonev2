@@ -22,7 +22,11 @@ public class Controller {
         CharSequence tempPass = passwordField.getCharacters();
         //System.out.println(encrypt(tempPass.toString()));
         api.authenticate(tempName.toString(), encrypt(tempPass.toString()));
+    }
 
+    @FXML
+    public void serverButton(ActionEvent event) {
+        api.serverTest();
     }
 
     private String encrypt(String tempString) {
