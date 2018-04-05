@@ -1,79 +1,44 @@
 package server;
 
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-
-import static server.AccessController.filenames;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class StorageHandler {
-    private String indexAddress = "index.txt";
 
+    private String prefix = "C://temp//";
+    private FileName filename;
+    private Path file;
 
-    protected StorageHandler(int numFiles) {
-
+    protected StorageHandler(FileName filename) {
+        this.filename = filename;
+        file = Paths.get(prefix + filename.getNames(0));
     }
 
-    protected void serialize() {
-        FileOutputStream fout = null;
-        ObjectOutputStream oos = null;
-
+    protected void write(String username, String password) {
+        byte[] usernameBytes = username.getBytes();
+        byte[] passwordBytes = password.getBytes();
+        byte[] bytecode = addBytes(usernameBytes, passwordBytes);
         try {
-            fout = new FileOutputStream("C:\\temp\\" + indexAddress);
-            oos = new ObjectOutputStream(fout);
-            oos.writeObject(filenames);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            if (fout != null) {
-                try {
-                    fout.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (oos != null) {
-                try {
-                    oos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            Files.write(file, bytecode);
+        } catch (IOException e) {
+            System.out.println("There was an error writing the data to file:");
+            e.printStackTrace();
         }
     }
 
-    protected FileName load() {
-        FileName tempFN = null;
-
-        FileInputStream fin = null;
-        ObjectInputStream ois = null;
-
+    private byte[] addBytes(byte[] arr1, byte[] arr2) {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
-            fin = new FileInputStream("C:\\temp\\" + indexAddress);
-            ois = new ObjectInputStream(fin);
-            tempFN = (FileName) ois.readObject();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            if (fin != null) {
-                try {
-                    fin.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (ois != null) {
-                try {
-                    ois.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            output.write(arr1);
+            output.write(arr2);
+        } catch (IOException e) {
+            System.out.println("Error concatenating bytes");
+            e.printStackTrace();
         }
-        return tempFN;
-
+        byte[] out = output.toByteArray();
+        return out;
     }
 
 }

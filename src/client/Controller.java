@@ -29,22 +29,25 @@ public class Controller {
         api.serverTest();
     }
 
-    private String encrypt(String tempString) {
+    private byte[] encrypt(String tempString) {
         MessageDigest md;
-        String returnString = "empty string";
+        //String returnString = "empty string";
+        byte[] digested = {};
         try {
             md = MessageDigest.getInstance("MD5");
             md.update(tempString.getBytes());
-            byte[] digested = md.digest();
+            digested = md.digest();
+            /*
             StringBuffer stringBuffer = new StringBuffer();
             for (byte bytes : digested) {
                 stringBuffer.append(String.format("%02x", bytes & 0xff));
             }
             returnString = stringBuffer.toString();
+            */
         }catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
-            return returnString;
+            return digested;
         }
     }
 

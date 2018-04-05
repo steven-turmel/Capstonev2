@@ -11,16 +11,19 @@ public class AccessController {
     protected static int numberOfFiles;
     private char[] alphabet;
     private StorageHandler sh;
+    private static AuthenticationHandler ah;
 
     private AccessController() {
         numberOfFiles = DEFAULT_NUM_FILES;
-        sh = new StorageHandler(numberOfFiles);
+        sh = new StorageHandler(filenames);
+        ah = new AuthenticationHandler(filenames);
         alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
         rand = new Random(11517299);
         extensions = new String[]{"sys", "dll", "dmz", "jql", "ben"};
         filenames = new FileName(initialize());
     }
 
+/*
     private AccessController(int numFiles) {
         alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
         numberOfFiles = numFiles;
@@ -28,6 +31,7 @@ public class AccessController {
         extensions = new String[]{"sys", "dll", "dmz", "jql", "ben"};
         filenames = new FileName(initialize());
     }
+*/
 
     private String[] initialize() {
         String[] tempFiles = new String[numberOfFiles];
@@ -53,5 +57,9 @@ public class AccessController {
         for (int i = 0; i < numberOfFiles; i++) {
             System.out.println(filenames.getNames(i));
         }
+    }
+
+    public static void authenticate(String username, byte[] pword) {
+        if (ah.check(username, pword));
     }
 }
