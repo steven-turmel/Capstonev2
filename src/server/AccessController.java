@@ -7,7 +7,7 @@ public class AccessController {
     protected static FileName filenames;
     private String[] extensions;
     private Random rand;
-    private static final int DEFAULT_NUM_FILES = 10;
+    public static final int DEFAULT_NUM_FILES = 10;
     protected static int numberOfFiles;
     private char[] alphabet;
     private StorageHandler sh;
