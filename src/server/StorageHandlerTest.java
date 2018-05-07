@@ -15,7 +15,13 @@ class StorageHandlerTest {
 
     @Test
     void testRead() {
-        StorageHandler sh = new StorageHandler("C:/temp/shadow.pwd");
+        StorageHandler sh = new StorageHandler();
         assertEquals("{username=password}", sh.readFromFile());
+    }
+
+    @Test
+    void testLog() {
+        StorageHandler sh = new StorageHandler();
+        LogEvent le = new LogEvent(this, "Test log string");
     }
 }

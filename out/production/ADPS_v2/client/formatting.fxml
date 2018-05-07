@@ -18,8 +18,9 @@
     <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
     <HBox spacing="10" alignment="bottom_right" GridPane.columnIndex="1" GridPane.rowIndex="4">
+        <Label fx:id="authentication" text="Authentication" visible="false"/>
         <Button text="Sign In" onAction="#handleSubmitButtonAction"/>
-        <Button text="Server" onAction="#serverButton"/>
     </HBox>
+
 
 </GridPane>

@@ -1,30 +1,39 @@
+/*
+ *  @author  Steven Turmel
+ *  @version 2.4
+ *  @date    May 6, 2018
+ *  @project Capstone_Project
+ *  @file    StorageHandler.java
+ *
+ */
+
 package server;
 
 import java.io.*;
+
 import java.util.HashMap;
 
-public class StorageHandler {
+
+public class StorageHandler implements LogListener {
 
     private String filename;
-    private HashMap<String, String> pwords;
+    private static String logfile = "C:\\temp\\events.log";
 
-    StorageHandler(String filename) {
+    protected HashMap<String,String> initialize(String filename) {
+        HashMap<String, String> tempPass;
         this.filename = filename;
         File file = new File(this.filename);
         if (file.exists()) {
             //If the file is present, load in from it:
-            pwords = readFromFile();
-        } else {
+             tempPass = readFromFile();
+        }  else {
             //If the file is not there, create the empty hashmap anyway.
-            pwords = new HashMap(100);
+            tempPass = new HashMap(100);
         }
+        return tempPass;
     }
 
-    protected void write(String username, String password) {
-        pwords.put(username, password);
-    }
-
-    protected boolean writeToFile() {
+    protected boolean writeToFile( HashMap<String, String> pwords) {
         try {
             FileOutputStream fos = new FileOutputStream(filename);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -40,12 +49,8 @@ public class StorageHandler {
         }
     }
 
-    protected HashMap getPasswords() {
-        return pwords;
-    }
-
-
     protected HashMap<String, String> readFromFile() {
+        //This method is used to load the (legit) passwords hashmap to the file
         HashMap<String, String> temp;
         try {
             FileInputStream fis = new FileInputStream(filename);
@@ -60,6 +65,19 @@ public class StorageHandler {
             c.printStackTrace();
             System.out.println("DEBUG: You shouldn't get this error. Class not found exception.");
             return null;
+        }
+    }
+
+    @Override
+    public void logHandler(LogEvent e) {
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(logfile, true));
+            out.write("Date: " + e.getDate() + " - Event: " + e.getLogString());
+            out.close();
+        } catch (IOException i) {
+            //Debug entry
+            System.out.println("DEBUG: There was an error writing the data to file:");
+            i.printStackTrace();
         }
     }
 }

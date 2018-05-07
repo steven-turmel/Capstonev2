@@ -1,12 +1,20 @@
+/*
+ *  @author  Steven Turmel
+ *  @version 2.4
+ *  @date    May 6, 2018
+ *  @project Capstone_Project
+ *  @file    Controller.java
+ *
+ */
+
 package client;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import server.API;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import server.Encoder;
 
 public class Controller {
 
@@ -15,26 +23,24 @@ public class Controller {
     private TextField userName;
     @FXML
     private PasswordField passwordField;
+    @FXML
+    private Label authentication;
 
     @FXML
     public void handleSubmitButtonAction(ActionEvent event) {
         CharSequence tempName = userName.getCharacters();
         CharSequence tempPass = passwordField.getCharacters();
-//        System.out.println(tempName.toString() + " " + tempPass.toString());
-        System.out.println(encrypt(tempPass.toString()));
-        boolean success = api.authenticate(tempName.toString(), encrypt(tempPass.toString()));
+        boolean success = api.authenticate(tempName.toString(), Encoder.encrypt(tempPass.toString()));
         if (!success) {
-            System.out.println("failed");
+            authentication.setText("Authentication Failed.");
+            authentication.setVisible(true);
         } else {
-            System.out.println("authenticated");
+            authentication.setText("Authenticated!");
+            authentication.setVisible(true);
         }
     }
 
-    @FXML
-    public void serverButton(ActionEvent event) {
-    }
-
-    private String encrypt(String tempString) {
+    /*private String encrypt(String tempString) {
         MessageDigest md;
         String returnString = "empty string";
         byte[] digested = tempString.getBytes();
@@ -53,6 +59,6 @@ public class Controller {
         }
         //System.out.println(digested);
         return returnString;
-    }
+    }*/
 }
 

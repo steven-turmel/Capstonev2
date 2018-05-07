@@ -1,13 +1,17 @@
-package server;
+/*
+ *  @author  Steven Turmel
+ *  @version 2.4
+ *  @date    May 6, 2018
+ *  @project Capstone_Project
+ *  @file    AccessController.java
+ *
+ */
 
+package server;
 
 import java.io.*;
 import java.net.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.Scanner;
-
 
 public class AccessController extends Thread{
     private String filename;
@@ -15,28 +19,22 @@ public class AccessController extends Thread{
     private static AuthenticationHandler ah;
     private ServerSocket serverSocket;
     private Socket clientSocket;
-    private Scanner request;
-    private DataOutputStream response;
+    private BufferedReader in;
+    private PrintWriter out;
     private boolean opened;
+    static final int BUFFER_SIZE = 20000;
+    static final int SERIAL_NUMBER = 57175;
+    private static final int NUM_PASSWORDS_GENERATED = 15;
 
     AccessController() {
         filename = "C:\\temp\\shadow.pwd";
-        sh = new StorageHandler(filename);
-        ah = new AuthenticationHandler();
+        sh = new StorageHandler();
+        ah = new AuthenticationHandler(SERIAL_NUMBER, sh.initialize(filename), sh);
         opened = false;
     }
 
-
-   /* public static void test() {
-        AccessController ac = new AccessController();
-    }*/
-
     private boolean authenticate(String username, String pword) {
-        return (ah.check(username, pword, request()));
-    }
-
-    private HashMap request() {
-        return sh.getPasswords();
+        return (ah.check(username, pword));
     }
 
     @Override
@@ -45,13 +43,13 @@ public class AccessController extends Thread{
     }
 
     private void close() {
-        sh.writeToFile();
+        sh.writeToFile(ah.getPass());
         if (opened) {
             try {
                 serverSocket.close();
                 clientSocket.close();
-                request.close();
-                response.close();
+                in.close();
+                out.close();
             } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("DEBUG: Error closing socket(s) or stream(s).");
@@ -60,16 +58,28 @@ public class AccessController extends Thread{
     }
 
     private void listen() {
+        /* This method is implemented to open the socket, receive the request,
+         * and then authenticate the username and password entered on the client-side
+         */
         try {
+            //This block of code sets up to send and receive information to the client program.
             serverSocket = new ServerSocket(1333);
             clientSocket = serverSocket.accept();
-            request = new Scanner(clientSocket.getInputStream());
-            response = new DataOutputStream(clientSocket.getOutputStream());
-            String[] temp = request.nextLine().split(":");
-            //System.out.println("DEBUG: username = " + temp[0]);
-            //System.out.println("DEBUG: password = " + temp[1]);
-            //response.writeBoolean(authenticate(temp[0], temp[1]));
-            response.writeBoolean(true);
+            opened = true;
+            clientSocket.setKeepAlive(true);
+            clientSocket.setTcpNoDelay(true);
+            clientSocket.setSendBufferSize(BUFFER_SIZE);
+            clientSocket.setReceiveBufferSize(BUFFER_SIZE);
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+            /* Here is where the username and password are read in,
+             * and then passed to the AuthenticationHandler to validate
+             */
+            String temp = in.readLine();
+            String[] tempArr = temp.split(":");
+            System.out.println(authenticate(tempArr[0], tempArr[1]));
+            out.println(authenticate(tempArr[0], tempArr[1]));
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("DEBUG: Failed to open server socket.");
@@ -80,28 +90,32 @@ public class AccessController extends Thread{
         Scanner sc = new Scanner(System.in);
         String input;
         boolean cont = true;
-        String helpString = "Commands are 'new', 'close', 'listen', or 'help'";
+        String helpString = "Commands are 'new', 'close', 'listen', 'exit', or 'help'";
         System.out.println(helpString);
         while (cont) {
             System.out.print("Please enter a command: ");
             input = sc.next().toLowerCase();
             switch (input) {
                 case "debug":
-                    System.out.println(request().toString());
+                    //System.out.println(ah.getPass().toString());
+                    ah.debug();
                     break;
                 case "new":
                     newUser(sc);
                     break;
                 case "close":
                     close();
-                    cont = false;
                     break;
                 case "listen":
-                    System.out.println("DEBUG: Opening socket, Thread will be blocked until request is received.");
+                    System.out.println("Opening socket, Thread will be blocked until a request is received.");
                     listen();
                     break;
                 case "help":
                     System.out.println(helpString);
+                    break;
+                case "exit":
+                    System.out.println("Exiting program...");
+                    cont = false;
                     break;
                 default:
                     System.out.println("Command not recognized. Use command 'help' for a listing of commands.");
@@ -117,27 +131,7 @@ public class AccessController extends Thread{
 
         System.out.print("Enter a password: ");
         String pass = sc.next();
-        sh.write(user, encrypt(pass));
+        ah.write(user, Encoder.encrypt(pass));
     }
 
-    private String encrypt(String tempString) {
-        MessageDigest md;
-        String returnString = "empty string";
-        byte[] digested = tempString.getBytes();
-        try {
-            md = MessageDigest.getInstance("SHA-256");
-            md.update(digested);
-            digested = md.digest();
-            StringBuffer stringBuffer = new StringBuffer();
-            for (byte bytes : digested) {
-                stringBuffer.append(String.format("%02x", bytes & 0xff));
-            }
-            returnString = stringBuffer.toString();
-        } catch (NoSuchAlgorithmException e) {
-            System.out.println("Change algorithms");
-            e.printStackTrace();
-        }
-        //System.out.println(digested);
-        return returnString;
-    }
 }

@@ -1,3 +1,12 @@
+/*
+ *  @author  Steven Turmel
+ *  @version 2.4
+ *  @date    May 6, 2018
+ *  @project Capstone_Project
+ *  @file    Main.java
+ *
+ */
+
 package client;
 
 import javafx.application.Application;
@@ -19,6 +28,5 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-
     }
 }

@@ -3,39 +3,21 @@
  *  @version 2.4
  *  @date    May 6, 2018
  *  @project Capstone_Project
- *  @file    AuthenticationHandler.java
+ *  @file    Encoder.java
  *
  */
 
 package server;
-import org.junit.jupiter.api.Test;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.*;
+public class Encoder {
 
-public class AuthenticationHandlerTest {
-
-    @Test
-    void testTesting() {
-        assertEquals(2, 2);
-    }
-
-    @Test
-   void testCheck() {
-        HashMap<String, String> hm = new HashMap();
-        hm.put("username", encrypt("password"));
-        StorageHandler sh = new StorageHandler();
-        AuthenticationHandler ah = new AuthenticationHandler(13337, hm, sh);
-        assertEquals(true, ah.check("username", encrypt("password")));
-    }
-
-    private String encrypt(String tempString) {
+    public static String encrypt(String plainText) {
         MessageDigest md;
         String returnString = "empty string";
-        byte[] digested = tempString.getBytes();
+        byte[] digested = plainText.getBytes();
         try {
             md = MessageDigest.getInstance("SHA-256");
             md.update(digested);
@@ -53,4 +35,3 @@ public class AuthenticationHandlerTest {
         return returnString;
     }
 }
-
